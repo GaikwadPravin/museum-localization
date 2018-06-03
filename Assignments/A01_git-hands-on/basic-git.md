@@ -12,3 +12,4 @@ This assignment is to help you get familiar with the basic git operations in dif
 
 ## Your content should be put in this section
 * Chris Wan: chrisw@abcde.com
+* Rosa Saldana: rositaguimoye@gmail.com 
