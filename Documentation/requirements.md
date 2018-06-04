@@ -115,25 +115,25 @@ A user will be carrying a raspberry pi along with a sensor on his body. A headph
   ###### 1. Rendering on Raspberry pi.
   After successful implementation of 3D sound for one source on pi, implement the same for multiple source. Fetch data of sensors to raspberry pi directly, compute user location as well as orientation. Communicate that location (as well as orientation ) to python GUI. Keep log/track of location to plot graph of Frequency vs Location. GUI should be made such that different source files can be uploaded depending on museum map. Depending on user orientation and location increase intensity of particular sound file. Repeat this continuously. </br>
 
-    **Communication should take place between following modules:**
-    * Sensor -> Raspberry pi (All sensors location)
-    * Raspberry pi -> python GUI (Utilize data to plot museum map)
-    * python GUI -> Raspberry pi (Upload source files)
-    * Mobile Sensor -> Raspberry pi  (Location + orientation data acquisition and conversion)
-    * Raspberry pi -> pi audio output.
-    * Raspberry pi -> python GUI (Location tracking)
+   **Communication should take place between following modules:**
+   * Sensor -> Raspberry pi (All sensors location)</br>
+   * Raspberry pi -> python GUI (Utilize data to plot museum map)</br>
+   * python GUI -> Raspberry pi (Upload source files)</br>
+   * Mobile Sensor -> Raspberry pi  (Location + orientation data acquisition and conversion)</br>
+   * Raspberry pi -> pi audio output.</br>
+   * Raspberry pi -> python GUI (Location tracking)</br>
 
-    ###### 2. Rendering on server computer.
-    After successful implementation of 3D sound for one source on computer, implement the same for multiple source. Fetch data of sensors to raspberry pi directly, compute user location as well as orientation. Communicate that location (as well as orientation ) to python GUI. Keep log/track of location to plot graph of Frequency vs Location. GUI should be made such that different source files can be uploaded depending on museum map. Depending on user orientation and location increase intensity of particular sound file and stream it to Raspberry pi. Repeat this continuously. </br>
+   ###### 2. Rendering on server computer.
+   After successful implementation of 3D sound for one source on computer, implement the same for multiple source. Fetch data of sensors to raspberry pi directly, compute user location as well as orientation. Communicate that location (as well as orientation ) to python GUI. Keep log/track of location to plot graph of Frequency vs Location. GUI should be made such that different source files can be uploaded depending on museum map. Depending on user orientation and location increase intensity of particular sound file and stream it to Raspberry pi. Repeat this continuously. </br>
 
-      **Communication should take place between following modules:**
-      * Sensor -> Raspberry pi (All sensors location)
-      * Raspberry pi -> python GUI (Utilize data to plot museum map)
-      * python GUI -> Raspberry pi (Upload source files)
-      * Mobile Sensor -> Raspberry pi  (Location + orientation data acquisition and conversion)
-      * Raspberry pi -> python GUI (Location tracking)
-      * server computer -> Raspberry pi (streaming)
-      * Raspberry pi -> pi audio output.
+   **Communication should take place between following modules:**
+   * Sensor -> Raspberry pi (All sensors location)</br>
+   * Raspberry pi -> python GUI (Utilize data to plot museum map)</br>
+   * python GUI -> Raspberry pi (Upload source files)</br>
+   * Mobile Sensor -> Raspberry pi  (Location + orientation data acquisition and conversion)</br>
+   * Raspberry pi -> python GUI (Location tracking)</br>
+   * server computer -> Raspberry pi (streaming)</br>
+   * Raspberry pi -> pi audio output.</br>
 
 ###### 6.4 Interface
 
