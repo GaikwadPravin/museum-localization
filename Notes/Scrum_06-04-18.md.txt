@@ -1,0 +1,17 @@
+Lab Meeting: 6/4/18
+Rosa and Pravin
+Finish Python GUI 
+Change the home page to allow the user to place objects (lamp, bed, nightstand, and tv)
+Sensors and coordinates: Sensor data (x,y) to put into python
+NOTE: Tkinter (to create python GUI) is in Python 3
+
+Sonali and Pravin
+Using the gyroscope to get the coordinates in python
+Sensors and coordinates: Sensor data (x,y) to put into python
+
+All members
+rendering sound
+go through the previous code (PYTHON). Write your own or convert from theirs, playback a spatial sound effect based on one sound source.
+Run the code and use breakpoints to understand the code
+
+Meetings :  Tuesday and Thursday 10 AM
