@@ -42,6 +42,7 @@
   * Archived MATLAB Code from 17 Spring
   * Archived Python Code from 18 Spring
   * Rendering Sound
+  * Python GUI: Turtle and Trinket
 
 ###### 1.4	Acronyms and Abbreviations
   Following is a list of the acronyms and abbreviations used in the system:
@@ -56,6 +57,7 @@
 | :------------- | :------------- |:------------- |
 |Pravin Gaikwad | pravin10216@gmail.com / pravin.gaikwad@ufl.edu | Requirement Document, Sensor, 3D sound rendering |
 |Sonali Mane | sonalimane1994@gmail.com / sonalimane@ufl.edu | Requirement Document, Sensor, 3D sound rendering |
+|Rosa Saldana | rositaguimoye@gmail.com / rosasaldana@ufl.edu | Requirement Document, Python GUI, sound rendering |
 
 #### 2.0	Current System Summary
 
@@ -91,6 +93,7 @@ A user will be carrying a raspberry pi along with a sensor on his body. A headph
 8. GUI should keep log of user location, which can be used to get the frequent location visited by users.(Graph can be plotted Frequency vs Location)
 9. GUI should be capable of providing different source file as per location.
 10. GUI should take into account sensor locations to plot real time user location(x,y axis on GUI).
+11. Carry out about 20-30 trials to find the deviation from the dashboard coordinates(orientation data from gyroscope) to the real-time orientation. 
 
 
 #### 4.0 Performance Requirements
@@ -105,7 +108,7 @@ A user will be carrying a raspberry pi along with a sensor on his body. A headph
   Hardware to be used is Raspberry pi 3 and sensors from marvelmind robotics.
 
 ###### 6.2 Software
-  Project will utilize MATLAB, python3 programming languages.
+  Project will utilize MATLAB, python3 programming languages. Python GUI libraries may include Trinker and Turtle.
 
 ###### 6.3 Communications Requirements
   Communication requirements depends on the way of implementation
