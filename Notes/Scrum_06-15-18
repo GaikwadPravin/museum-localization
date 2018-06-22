@@ -1,0 +1,29 @@
+Updates
+Sonali
+⦁	No connection from pi to wifi
+⦁	professor said we don't have to change elevation.
+⦁	if you include elevation can hear it from the front side.
+
+Chris
+⦁	audio files must be mono files not stereo files
+⦁	the bit rates - 40 or 44k? the rate has to be correct
+⦁	Have to use museum audio files to test it 
+
+Pravin
+⦁	Azimuth angle changed --> could hear 3D audio effect
+⦁	Last semester's code -  created multithreads but there is only one thread
+⦁	Sonali and Pravin hear a gap in the sound file
+⦁	Updated the azimuth
+⦁	hrtf file - 3d array and we have 25 different angles values for azimuth range. try changing the value can see 3D sound. Can hear sounds from the back of our ear. changed azimuth from 0 to 25 and we can hear sound from the back of our ear
+⦁	convolvue the current (what?) with the current frame
+
+Keywords 
+⦁	Audacity - free tool to modify/check these files
+⦁	blocking, nonblocking
+⦁	UC DAVIS for resources
+
+Rosa
+⦁	sound part - no audio driver - cannot render sounds on windows subsystem - only for debugging the gryoscope
+⦁	Professor McMullen - advice on textbooks to understand the fundamentals
+⦁	Documents from UC Davis
+⦁	Textbook
