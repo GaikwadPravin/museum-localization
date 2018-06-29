@@ -1,0 +1,26 @@
+# Scrum 05/30/2018
+## Participants: 
+Pravin, Sonali, Rosa
+
+## TODO List
+1. Work on the interpolation for HRIR
+2. Download MATLAB 
+3. **IMPORTANT: Rewrite your own understanding of the code**
+4. Convolution Performance
+
+## Other Notes
+### Rosa
+ITD Interpolation - Use a hash table (python dictionary) for Elevation 0 and 180 where the keys are the azimuth 
+Pravin says not to do any calculation in real-time (I am still confused on what he means) we have data for HRIR before we render
+Work on HRIR interpolation
+
+### Pravin 
+Convolution - time domain. Tested that if the number of sampes is less than 15 then it is better to do it in time domain.
+Algorithmic technique to not find the azimuth at current time.
+Question (from Rosa): how would you know be able to caculate the future azimuth if we're not given the azimuth originally?
+Plan for this week: Convolution (from numpy library) using Fast Fourier Transform
+
+### Sonali
+Install MATLAB - laptop does not support current drivers for UF Apps Website.
+Implementing and understanding the MATLAB code into python
+Plan for this week: Interpolation and implementing the MATLAB code into python
