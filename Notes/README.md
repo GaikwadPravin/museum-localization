@@ -1,6 +1,7 @@
 # Project Notes
 
 ## Scrum Meetings
+* [July 13th Scrum Notes](./Scrum_07_13-18.md)
 * [June 29th Scrum Notes](./Scrum_06_29-18.md)
 * [June 22nd Scrum Notes](./Scrum_06_22_18.md)
 * [June 19th Scrum Notes](./Scrum_06-19-18.md)
