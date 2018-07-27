@@ -61,9 +61,9 @@ def append_data(azimuth1, azimuth2):
 while not queue.empty():
     append_data(queue.get(), queue.get())
 
-time_end = time.time() + 80
+time_end = time.time() + 60
 start_time = time.time()
-# execute the loop for 80 seconds
+# execute the loop for 60 seconds
 while start_time < time_end:
     stream.write(buffer[audio_counter: (audio_counter + FRAME_RATE)].astype(numpy.float32).tostring())
     audio_counter = audio_counter + FRAME_RATE
