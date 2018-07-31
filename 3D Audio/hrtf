@@ -1,0 +1,47 @@
+import HRIR
+import ITD
+import soundfile as sf
+import numpy
+import pyaudio
+
+
+def new_audio(elevation, curr_azimuth):
+    sound_wave, sample_rate = sf.read('white-noise 1 second.wav')
+    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth] 
+    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth] 
+    delay = ITD.ITD[elevation][curr_azimuth]
+    zeros_delay = [0] * abs(int(delay))
+    if curr_azimuth > 0:
+        left_audio = numpy.append(zeros_delay, left_hrir)
+        right_audio = numpy.append(right_hrir, zeros_delay)
+    elif curr_azimuth < 0:
+        left_audio = numpy.append(left_hrir, zeros_delay)
+        right_audio = numpy.append(zeros_delay, right_hrir)
+    left_convolution = numpy.convolve(left_audio, sound_wave, 'full')
+    right_convolution = numpy.convolve(right_audio, sound_wave, 'full')
+    # combine the left and right convolution arrays
+    sound_to_play = numpy.array([left_convolution, right_convolution])
+    # find the max in sound to play to avoid audio clipping
+    max_left = max(sound_to_play[0])
+    max_right = max(sound_to_play[1])
+    maximum = max_left if max_left > max_right else max_right
+    sound_to_play = sound_to_play / float(maximum)
+    sound_to_play = numpy.transpose(sound_to_play)
+    sound_to_play = sound_to_play.astype('float32')
+    return sound_to_play
+
+
+p = pyaudio.PyAudio()
+stream = p.open(format=pyaudio.paFloat32, channels=2, rate=44100, output=True)
+azimuth = []
+
+for azi in range(-80, -1):
+    azimuth.append(azi)
+
+for element in azimuth:
+    data = new_audio("Elevation 0", element)
+    stream.write(data.astype(numpy.float32).tostring())
+
+stream.stop_stream()
+stream.close()
+p.terminate()
