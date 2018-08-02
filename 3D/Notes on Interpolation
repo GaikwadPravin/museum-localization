@@ -1,0 +1,22 @@
+Elevation 0:
+(-81, ..., -90)
+min: azimuth: -80 elevation: 0
+max: azimuth: -80 elevation: 180
+
+
+Elevation 0:
+(81, ..., 90)
+min: azimuth: 80 elevation: 0
+max: azimuth: 80 elevation: 180
+
+
+Elevation 180:
+(-81, ..., -90)
+min: azimuth: -80 elevation: 180
+max: azimuth: -80 elevation: 0
+
+
+Elevation 180:
+(81, ..., 90)
+min: azimuth: 80 elevation: 180
+max: azimuth: 80 elevation: 0
