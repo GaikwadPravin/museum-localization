@@ -1,0 +1,143 @@
+import scipy.io as scp # used to load .mat file
+import HRIR_Data as d
+import numpy as np
+import sys
+
+'''
+This program initializes a left and right hash with all the head related impulses responses ranging from azimuths -80 to 80.
+This includes HRIR from the CIPIC database and the interpolated HRIR values that were not in the CIPIC database. 
+NOTE: There is an error with the scale factor when trying to interpolate for values greater than 80 and -80. 
+'''
+
+# load the matlab file from CIPIC database
+try:
+    hrtf_db = scp.loadmat('CIPIC_58_HRTF.mat')
+except RuntimeError:
+    print("ERROR: couldn't load in the matlab file")
+    sys.exit(0)
+
+HRIR_LEFT = hrtf_db['hrir_l']
+HRIR_RIGHT = hrtf_db['hrir_r']
+
+# find the min value [from the given CIPIC azimuths] closest to the current value
+
+
+def find_min(current_val):
+    while True:
+        current_val = current_val - 1
+        min_exists = current_val in AZIMUTH_VALUES
+        if min_exists:
+            return current_val
+            break
+
+# find the max value [from the given CIPIC azimuths] closes to the current value
+
+
+def find_max(current_val):
+    while True:
+        current_val = current_val + 1
+        max_exists = current_val in AZIMUTH_VALUES
+        if max_exists:
+            return current_val
+            break
+
+
+def interpolate(user_azimuth, elevation):
+    user_azimuth = round(user_azimuth)
+    '''
+    this part is currently commented out because the scale factor produces 0 when trying to interpolate
+    for azimuths greater than 80 and -80
+    
+    # initialize azimuth max and min to 80 if current azimuth is greater than 80
+    if user_azimuth > 80:
+        azimuth_max = 80
+        azimuth_min = 80
+    # initialize azimuth max and min to -80 if current azimuth is greater than -80
+    elif user_azimuth < -80:
+        azimuth_max = -80
+        azimuth_min = -80
+    else:
+    '''
+    # find the min and max [from the given CIPIC azimuths] for current azimuths ranging from 80 to -80
+    azimuth_max = find_max(user_azimuth)
+    azimuth_min = find_min(user_azimuth)
+    '''
+    retrieving the correct impulse responses to interpolate the HRIR for azimuths greater than -80 and 80.
+    
+    ERROR: 
+        error: ZeroDivisionError: division by zero - what should the scale factor be for azimuths
+        greater than 80 and -80
+        Ask Prof. McMullen what she wants the scale_factor to be because of this error for azimuths greater
+        than -80 and 80. 
+    
+    if elevation == "Elevation 0" and (user_azimuth > 80 or user_azimuth < -80):
+        print(elevation, user_azimuth, azimuth_max, azimuth_min)
+        leftMin_HRIR = np.array(d.HRIR_L[elevation][azimuth_min])  # an array of integers
+        leftMax_HRIR = np.array(d.HRIR_L["Elevation 180"][azimuth_max])
+        rightMin_HRIR = np.array(d.HRIR_R[elevation][azimuth_min])
+        rightMax_HRIR = np.array(d.HRIR_R["Elevation 180"][azimuth_max])
+    elif elevation == "Elevation 180" and (user_azimuth < -80 or user_azimuth > 80):
+        leftMin_HRIR = np.array(d.HRIR_L[elevation][azimuth_min])  # an array of integers
+        leftMax_HRIR = np.array(d.HRIR_L["Elevation 0"][azimuth_max])
+        rightMin_HRIR = np.array(d.HRIR_R[elevation][azimuth_min])
+        rightMax_HRIR = np.array(d.HRIR_R["Elevation 0"][azimuth_max])
+    else:
+    '''
+    # retrieve the left and right impulse responses
+    leftMin_HRIR = np.array(d.HRIR_L[elevation][azimuth_min])  # an array of integers
+    leftMax_HRIR = np.array(d.HRIR_L[elevation][azimuth_max])
+    rightMin_HRIR = np.array(d.HRIR_R[elevation][azimuth_min])
+    rightMax_HRIR = np.array(d.HRIR_R[elevation][azimuth_max])
+
+    scale_factor = abs(user_azimuth - azimuth_min) / abs(azimuth_max - azimuth_min)
+    # multiply an array of integers(HRIR) by the scale factor
+    left_hrir = (1 - scale_factor) * leftMin_HRIR + scale_factor * leftMax_HRIR
+    right_hrir = (1 - scale_factor) * rightMin_HRIR + scale_factor * rightMax_HRIR
+    # puts the HRIR values in a 1 by 20 array
+    left_hrir_vals = []
+    right_hrir_vals = []
+    for val in left_hrir:
+        left_hrir_vals.append(val)
+
+    for val in right_hrir:
+        right_hrir_vals.append(val)
+    # return both HRIR values in a 1 by 20 array
+    return left_hrir_vals, right_hrir_vals
+
+
+# the hashes that will store all the HRIR from the CIPIC database
+# and the interpolated HRIR values
+HRIR_LEFT_HASH = {"Elevation 0": {},
+                  "Elevation 180": {}}
+HRIR_RIGHT_HASH = {"Elevation 0": {},
+                   "Elevation 180": {}}
+
+MISSING_VALUES = [-90, -85, -75, -70, -60, -50, 85, 90, 75, 70, 60, 50]
+# CIPIC database azimuths
+AZIMUTH_VALUES = [-80, -65, -55, -45, 40, -35, 30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 55, 65, 80]
+
+# initializes the HRIR_LEFT_HASH and HRIR_RIGHT_HASH
+
+
+def initialize(elevation, elevation_index):
+    azimuth_index = 0
+    # store the HRIR values for azimuths -90 to 91
+    # for azimuth in range(-90, 91):
+    for azimuth in range(-80, 81):
+        # if the current azimuth is in the CIPIC database then retrieve the HRIR values from the matlab file
+        if azimuth % 5 == 0 and azimuth not in MISSING_VALUES:
+            HRIR_LEFT_HASH[elevation][azimuth] = np.array((np.squeeze(HRIR_LEFT[azimuth_index][elevation_index][:])))
+            HRIR_RIGHT_HASH[elevation][azimuth] = np.array(np.squeeze(HRIR_RIGHT[azimuth_index][elevation_index][:]))
+            azimuth_index = azimuth_index + 1
+        # else interpolate the HRIR values and store them in the new hashes HRIR_LEFT_HASH and HRIR_RIGHT_HASH
+        elif azimuth not in AZIMUTH_VALUES:
+            left_impulse, right_impulse = interpolate(azimuth, elevation)
+            HRIR_LEFT_HASH[elevation][azimuth] = left_impulse
+            HRIR_RIGHT_HASH[elevation][azimuth] = right_impulse
+
+
+# initialize the HRIR_LEFT_HASH and HRIR_RIGHT_HASH with all the HRIR data from the interpolation process
+# and from the CIPIC database
+initialize("Elevation 0", 7)
+initialize("Elevation 180", 39)
+
