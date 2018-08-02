@@ -5,43 +5,56 @@ import numpy
 import pyaudio
 
 
-def new_audio(elevation, curr_azimuth):
+def create_audio(elevation, curr_azimuth):
+    # read the 1 seoond white noise
     sound_wave, sample_rate = sf.read('white-noise 1 second.wav')
-    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth] 
-    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth] 
+    # retrieve the HRIR
+    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth]
+    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth]
+    # retrieve the ITD
     delay = ITD.ITD[elevation][curr_azimuth]
+    # create a zeros array the length of the ITD
     zeros_delay = [0] * abs(int(delay))
+    # if azimuth is greater than 0 then prepend the delay to the left HRIR and append the delay to the right HRIR
     if curr_azimuth > 0:
         left_audio = numpy.append(zeros_delay, left_hrir)
         right_audio = numpy.append(right_hrir, zeros_delay)
+    # if azimuth is less than 0 then append the delay to the left HRIR and prepend the delay to the right HRIR
     elif curr_azimuth < 0:
         left_audio = numpy.append(left_hrir, zeros_delay)
         right_audio = numpy.append(zeros_delay, right_hrir)
+    # convolve the left and right impulse responses with the white noise
     left_convolution = numpy.convolve(left_audio, sound_wave, 'full')
     right_convolution = numpy.convolve(right_audio, sound_wave, 'full')
-    # combine the left and right convolution arrays
+    # combine the left and right convolved sounds into one array
     sound_to_play = numpy.array([left_convolution, right_convolution])
-    # find the max in sound to play to avoid audio clipping
+    # determine which sound is greater 
     max_left = max(sound_to_play[0])
     max_right = max(sound_to_play[1])
+    # mathematical calculation to avoid sound clipping
     maximum = max_left if max_left > max_right else max_right
     sound_to_play = sound_to_play / float(maximum)
     sound_to_play = numpy.transpose(sound_to_play)
+    # change the data type of the data in the sound_to_play array
     sound_to_play = sound_to_play.astype('float32')
+    # return the 3d audio sound as a numpy array
     return sound_to_play
 
 
+CHUNK = 1024
+# open pyAudio()
 p = pyaudio.PyAudio()
 stream = p.open(format=pyaudio.paFloat32, channels=2, rate=44100, output=True)
 azimuth = []
-
+# add azimuths -80 through -1 to the array azimuths
 for azi in range(-80, -1):
     azimuth.append(azi)
-
+# for azimuths -80 through -1 at elevation 0, convolve each HRIR at each azimuth with the 1 second white noise
+# to create and stream the 3D audio
 for element in azimuth:
-    data = new_audio("Elevation 0", element)
+    data = create_audio("Elevation 0", element)
     stream.write(data.astype(numpy.float32).tostring())
-
+# close the stream
 stream.stop_stream()
 stream.close()
 p.terminate()
