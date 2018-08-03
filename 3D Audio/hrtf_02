@@ -1,0 +1,84 @@
+from scipy.io.wavfile import read
+import pyaudio
+import numpy
+import wave
+import HRIR
+import ITD
+
+
+def create_audio(elevation, curr_azimuth, sound_wave):
+    print(elevation, curr_azimuth)
+    # retrieve the HRIR
+    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth]
+    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth]
+    # retrieve the ITD
+    delay = ITD.ITD[elevation][curr_azimuth]
+    # create a zeros array the length of the ITD
+    zeros_delay = [0] * abs(int(delay))
+    # if azimuth is greater than 0 then prepend the delay to the left HRIR and append the delay to the right HRIR
+    if curr_azimuth > 0:
+        left_audio = numpy.append(zeros_delay, left_hrir)
+        right_audio = numpy.append(right_hrir, zeros_delay)
+    # if azimuth is less than 0 then append the delay to the left HRIR and prepend the delay to the right HRIR
+    elif curr_azimuth < 0:
+        left_audio = numpy.append(left_hrir, zeros_delay)
+        right_audio = numpy.append(zeros_delay, right_hrir)
+    # convolve the left and right impulse responses with the white noise
+
+    left_convolution = numpy.convolve(left_audio, sound_wave, 'full')
+    right_convolution = numpy.convolve(right_audio, sound_wave, 'full')
+    # combine the left and right convolved sounds into one array
+    sound_to_play = numpy.array([left_convolution, right_convolution])
+    # determine which sound is greater
+    max_left = max(sound_to_play[0])
+    max_right = max(sound_to_play[1])
+    # mathematical calculation to avoid sound clipping
+    maximum = max_left if max_left > max_right else max_right
+    sound_to_play = sound_to_play / float(maximum)
+    sound_to_play = numpy.transpose(sound_to_play)
+    # change the data type of the data in the sound_to_play array
+    sound_to_play = sound_to_play.astype('float32')
+    # return the 3d audio sound as a numpy array
+    return sound_to_play
+
+
+start = 0
+end = 102400
+p = pyaudio.PyAudio()
+wave_file = wave.open('1.wav')
+
+(fs, samples) = read('1.wav')
+# the length of the file
+# len(samples)
+(nchannels, sampwidth, framerate, nframes, comptype, compname) = wave_file.getparams()
+stream = p.open(format=pyaudio.paFloat32, channels=2, rate=44100, output=True)
+
+azimuth = []
+for azi in range(-80, -1):
+    azimuth.append(azi)
+
+# total size of the wav file
+total_size = samples[start:len(samples)]
+# initializing the size of the first chunk
+chunk = total_size[start:end]
+chunk_size = 102400
+
+for curr_azimuth in azimuth:
+    # create 3d audio from a chunk of the wave file at a specific azimuth
+    data = create_audio("Elevation 0", curr_azimuth, chunk)
+    print(data)
+    start = end
+    end = end + chunk_size
+    # reading the next chunk of the samples from the wave file
+    chunk = samples[start:end]
+    # exit loop if the end of the wave file is reached
+    if not chunk.any():
+        break
+    # NOTE: stream.write(data) does not work has to be converted to string
+    stream.write(data.astype(numpy.float32).tostring())
+
+# close the stream
+stream.stop_stream()
+stream.close()
+p.terminate()
+
