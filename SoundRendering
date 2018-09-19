@@ -1,0 +1,74 @@
+import HRIR
+import ITD
+import soundfile as sf
+import numpy
+import time
+from Queue import *
+import pyaudio
+
+
+def new_audio(elevation, curr_azimuth):
+    sound_wave, sample_rate = sf.read('white-noise.wav')
+    zero_padding = [0] * int(sample_rate * 0.2)
+    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth]
+    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth]
+    delay = ITD.ITD[elevation][curr_azimuth]
+    zeros_delay = [0] * abs(int(delay))
+    if curr_azimuth > 0:
+        left_audio = numpy.append(zeros_delay, left_hrir)
+        right_audio = numpy.append(right_hrir, zeros_delay)
+    # sound is coming from the left side
+    elif curr_azimuth < 0:
+        left_audio = numpy.append(left_hrir, zeros_delay)
+        right_audio = numpy.append(zeros_delay, right_hrir)
+    left_convolution = numpy.convolve(left_audio, sound_wave, 'full')
+    right_convolution = numpy.convolve(right_audio, sound_wave, 'full')
+    LEFT_SOUND = numpy.append(left_convolution, zero_padding)
+    RIGHT_SOUND = numpy.append(right_convolution, zero_padding)
+    sound_to_play = numpy.array([LEFT_SOUND, RIGHT_SOUND])
+    max_left = max(sound_to_play[0])
+    max_right = max(sound_to_play[1])
+    maximum = max_left if max_left > max_right else max_right
+    sound_to_play = sound_to_play / float(maximum)
+    sound_to_play = numpy.transpose(sound_to_play)
+    sound_to_play = sound_to_play.astype('float32')
+    return sound_to_play
+
+
+# insert the azimuths
+# max azimuths: 70
+queue = Queue()
+for element in range(-80, -10):
+    queue.put(element)
+
+CHUNK = 1024
+FRAME_RATE = 148448
+
+audio_counter = 0
+p = pyaudio.PyAudio()
+stream = p.open(format=pyaudio.paFloat32, channels=2, rate=44100, output=True)
+
+
+def append_data(azimuth1, azimuth2):
+    global buffer
+    data_one = new_audio("Elevation 0", azimuth1)
+    data_two = new_audio("Elevation 0", azimuth2)
+    buffer = numpy.append(data_one[:74224], buffer)
+    buffer = numpy.append(buffer, data_two[:74224])
+    print("This is the buffer size {}".format(len(buffer)))
+
+
+while not queue.empty():
+    append_data(queue.get(), queue.get())
+
+time_end = time.time() + 60
+start_time = time.time()
+# execute the loop for 60 seconds
+while start_time < time_end:
+    stream.write(buffer[audio_counter: (audio_counter + FRAME_RATE)].astype(numpy.float32).tostring())
+    audio_counter = audio_counter + FRAME_RATE
+
+stream.stop_stream()
+stream.close()
+p.terminate()
+

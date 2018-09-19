@@ -1,0 +1,103 @@
+import HRIR
+import ITD
+import soundfile as sf
+import numpy
+import time
+from Queue import *
+import pyaudio
+from multiprocessing.pool import threading
+
+audio_lock = threading.Lock()
+
+
+def new_audio(elevation, curr_azimuth):
+    sound_wave, sample_rate = sf.read('white-noise.wav')
+    zero_padding = [0] * int(sample_rate * 0.2)
+    left_hrir = HRIR.HRIR_LEFT_HASH[elevation][curr_azimuth]
+    right_hrir = HRIR.HRIR_RIGHT_HASH[elevation][curr_azimuth]
+    delay = ITD.ITD[elevation][curr_azimuth]
+    zeros_delay = [0] * abs(int(delay))
+    if curr_azimuth > 0:
+        left_audio = numpy.append(zeros_delay, left_hrir)
+        right_audio = numpy.append(right_hrir, zeros_delay)
+    # sound is coming from the left side
+    elif curr_azimuth < 0:
+        left_audio = numpy.append(left_hrir, zeros_delay)
+        right_audio = numpy.append(zeros_delay, right_hrir)
+    left_convolution = numpy.convolve(left_audio, sound_wave, 'full')
+    right_convolution = numpy.convolve(right_audio, sound_wave, 'full')
+    LEFT_SOUND = numpy.append(left_convolution, zero_padding)
+    RIGHT_SOUND = numpy.append(right_convolution, zero_padding)
+    sound_to_play = numpy.array([LEFT_SOUND, RIGHT_SOUND])
+    max_left = max(sound_to_play[0])
+    max_right = max(sound_to_play[1])
+    maximum = max_left if max_left > max_right else max_right
+    sound_to_play = sound_to_play / float(maximum)
+    sound_to_play = numpy.transpose(sound_to_play)
+    sound_to_play = sound_to_play.astype('float32')
+    return sound_to_play
+
+
+# only one azimuth is currently playing
+queue = Queue()
+AZIMUTHS = [-80, -20]
+list(map(queue.put, AZIMUTHS))
+
+CHUNK = 1024
+FRAME_RATE = 148448
+buffer = numpy.empty
+audio_counter = 0
+p = pyaudio.PyAudio()
+stream = p.open(format=pyaudio.paFloat32, channels=2, rate=44100, output=True)
+
+
+def render_audio(frame_rate):
+    global audio_counter, buffer
+    while True:
+        if not t1.isAlive():
+            stream.write(buffer[audio_counter: (audio_counter + frame_rate)].astype(numpy.float32).tostring())
+            audio_counter = audio_counter + frame_rate
+            print audio_counter
+            if audio_counter > 296896:
+                print("got here")
+                break
+                return
+
+
+def append_data(azimuth1, azimuth2):
+    global buffer
+    data_one = new_audio("Elevation 0", azimuth1)
+    data_two = new_audio("Elevation 0", azimuth2)
+    buffer = numpy.append(data_one[:74224], data_two[:74224])
+    print("This is the buffer size {}".format(len(buffer)))
+    print buffer
+
+
+def threader_one():
+    # while user input
+    azimuth_one = queue.get()
+    azimuth_two = queue.get()
+    append_data(azimuth_one, azimuth_two)
+    queue.task_done()
+
+
+def threader_two():
+    render_audio(FRAME_RATE)
+
+
+for thread in range(1):
+    t1 = threading.Thread(target=threader_one)
+    t2 = threading.Thread(target=threader_two)
+    t1.daemon = True
+    t2.daemon = True
+    t1.start()
+    t2.start()
+
+queue.join()
+stream.stop_stream()
+stream.close()
+p.terminate()
+
+# PROBLEM: thread two only works when thread one is complete *****
+
+

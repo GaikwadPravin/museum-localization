@@ -1,0 +1,31 @@
+##Pravin
+Professor told Pravin to reverse the system
+Integrating user coordinates
+Improve user API
+### Future task: introduce orientation
+
+## Sonali
+Received orientation from sensor beacon
+The data is unstable
+understanding the sensor beacon
+Tried to get orientation using two beacons is not unstable, 
+Has experimented for 90 degree and the beacon displays the correct information
+Used the command prompt to print the degree values while gradually moving the sensors.
+The command prompt showed that the degrees decreased by one degree
+Accuracy check complete for smaller angles and 360 rotation.
+
+### Future Task: Use an algorithm to stablize the sensor data. Noise Reduction Algorithm
+
+### Chris Advice: It is normal for the data to be unstable because of noise in the real world.
+Every tme you get new data from the beacon, calculate the average. 
+If the the calculation is outside the threshold then try to stablize with algorithm.
+
+## Rosa
+Directly streaming the 3D audio noise to the sound card - no wav file necessary.
+Multithreading to compute the next convovled sounds.
+
+### Future Task: Retrieve the sound from the thread. See if there exists a gap between the two sounds. 
+Changing the sound for every change in azimuth - replacing frames. 
+
+
+
